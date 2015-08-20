@@ -7,18 +7,25 @@ def print_help():
 
  
 def find_all_dds(rootDir): 
+    if rootDir[-1] == '\\' or rootDir[-1] == '/':
+        rootDir = rootDir[:-1]
+
     list_dirs = os.walk(rootDir)
     for root, dirs, files in list_dirs:  
         for f in files: 
             if f[-3:] == 'dds':
+                troot = root.replace(rootDir,rootDir + '_output')
+                if not os.path.exists(troot):
+                    os.makedirs(troot)
                 full_name =  os.path.join(root, f)
-                target_name = full_name[:-3] + 'png'
-                print 'convert dds 2 png'
+                target_name = os.path.join(troot, f)
+                target_name = target_name[:-3] + 'png'
+
                 os.system('imconvert '+full_name + ' ' + target_name)
-                if os.path.isfile(target_name):
-                    print 'convert png success!'
-                    print 'remove ' + full_name
-                    os.remove(full_name)
+                print 'origin :' + full_name
+                print 'imconverted :' + target_name
+
+ 
 
 
 
