@@ -1,0 +1,8 @@
+果岭 Greens
+球道 Fairway
+长草 Rough
+野草 Heather
+沙坑 Bunker
+山   Hill
+路   Road
+水   Water
