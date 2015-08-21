@@ -1,9 +1,9 @@
 @echo off
-set "maya_bin_path=D:\Program Files\Autodesk\Maya2015\bin"
-set "export_path=D:\projects\digitgolf\Raw\Script\output"
-set "source_path=D:\projects\digitgolf\Raw\Level\NineDragonsA\MB files-Objects"
-set "texture_path1=D:\projects\digitgolf\Raw\Level\NineDragonsA\Objects"
-set "texture_path2=D:\projects\digitgolf\Raw\Level\NineDragonsA\QuadTextures"
+set "maya_bin_path=C:\Program Files\Autodesk\Maya2015\bin"
+set "export_path=D:\Kenshin\digitgolf\Raw\Level\Common\mb_output"
+set "source_path=D:\Kenshin\digitgolf\Raw\Level\Common\MB files-Objects"
+set "texture_path1=D:\Kenshin\digitgolf\Raw\Level\Common\Objects"
+set "texture_path2=D:\Kenshin\digitgolf\Raw\Level\Common\QuadTextures"
 set "extension=png"
 
 

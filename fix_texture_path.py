@@ -1,5 +1,5 @@
 import sys
-
+import os
 
 export_path = sys.argv[1]
 source_path = sys.argv[2]
@@ -55,22 +55,30 @@ for f in glob.iglob(source_path + "/*.mb"):
 
     array = cmds.ls( textures=True )
     for fileNode in array:
-        fullpath = cmds.getAttr("%s.fileTextureName" %fileNode)
-        fileName = fullpath.split("/")[-1]
-        name , postfix = fileName.split('.')
-        #print  name , postfix 
-        fileName =  name + '.' + extension
 
-        if fileName in texture_group1:
-            newPath = join(texture_path1,fileName).replace('\\', '/')
-        elif fileName in texture_group2:
-            newPath = join(texture_path2,fileName).replace('\\', '/')
-        else:
-            print 'can not find texture!!!!!!!!!!!!!!'
-            newPath = join(texture_path1,fileName).replace('\\', '/')
+        try:
 
-        #print newPath
-        cmds.setAttr("%s.fileTextureName" %fileNode, newPath,type="string")
+            fullpath = cmds.getAttr("%s.fileTextureName" %fileNode)
+            fileName = fullpath.split("/")[-1]
+            name , postfix = fileName.split('.')
+            #print  name , postfix 
+            fileName =  name + '.' + extension
+
+            if fileName in texture_group1:
+                newPath = join(texture_path1,fileName).replace('\\', '/')
+            elif fileName in texture_group2:
+                newPath = join(texture_path2,fileName).replace('\\', '/')
+            else:
+                print 'can not find texture!!!!!!!!!!!!!!'
+                newPath = join(texture_path1,fileName).replace('\\', '/')
+
+            #print newPath
+            cmds.setAttr("%s.fileTextureName" %fileNode, newPath,type="string")
+
+
+        except ValueError, e:
+            print 'can not get :' + ("%s.fileTextureName" %fileNode)
+
 
 
     split_group = f.split("/")
@@ -82,6 +90,9 @@ for f in glob.iglob(source_path + "/*.mb"):
     name , postfix = fileName.split('.')
     fileName =  name + '.mb'
     print fileName
+
+    if not os.path.exists(export_path):
+        os.makedirs(export_path)
     
     newPath = join(export_path,fileName).replace('\\', '/')
     cmds.file( rename= newPath  )
