@@ -47,6 +47,7 @@ for f in glob.iglob(texture_path2 + "/*."+extension):
     texture_group2.append(fileName)
 
 
+mat_array = cmds.ls( materials=True )
 
 
 for f in glob.iglob(source_path + "/*.mb"):
@@ -61,6 +62,7 @@ for f in glob.iglob(source_path + "/*.mb"):
             fullpath = cmds.getAttr("%s.fileTextureName" %fileNode)
             fileName = fullpath.split("/")[-1]
             name , postfix = fileName.split('.')
+
             #print  name , postfix 
             fileName =  name + '.' + extension
 
@@ -74,6 +76,12 @@ for f in glob.iglob(source_path + "/*.mb"):
 
             #print newPath
             cmds.setAttr("%s.fileTextureName" %fileNode, newPath,type="string")
+
+            #if the texture and material name are the same ,ue4 will fail to import texture
+            b_same_name = name in mat_array
+
+            if b_same_name:
+                cmds.rename(name,name+'_mat')  
 
 
         except ValueError, e:
