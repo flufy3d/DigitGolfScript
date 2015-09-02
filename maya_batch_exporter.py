@@ -21,12 +21,14 @@ print 'initialize done.'
 
 for f in glob.iglob(source_path + "/*.mb"):
     cmds.file (f, force=True, open=True)
+    print 'open :' + f
 
-
+    del_list = []
     mat_array = cmds.ls( materials=True )
     tex_array = cmds.ls( textures=True )
     for fileNode in tex_array:
-        try:
+        tex_type  = cmds.nodeType( fileNode )
+        if tex_type == 'file':
             fullpath = cmds.getAttr("%s.fileTextureName" %fileNode)
             fileName = fullpath.split("/")[-1]
             name , postfix = fileName.split('.')
@@ -38,11 +40,49 @@ for f in glob.iglob(source_path + "/*.mb"):
                 print 'tex mat is same name ,so change the name of material: %s to _mat' % name
                 cmds.rename(name,name+'_mat')  
                 mat_array.remove(name)
-                
 
-        except ValueError, e:
+        elif tex_type == 'layeredTexture':
+            out_mat = cmds.listConnections(fileNode,d=True, s=False ,t='lambert')
 
-            print 'can not get :' + ("%s.fileTextureName" %fileNode)
+            color_map_tex = None
+            content_tex = None
+
+            in_tex_array = cmds.listConnections(fileNode,d=False, s=True )
+            for in_tex in in_tex_array:
+                in_items = cmds.listConnections(in_tex,d=False, s=True )
+                if in_items != None:
+                    in_type = cmds.nodeType( in_items[0] )
+                    if in_type[:2] == 'uv':
+                        color_map_tex = in_tex
+                    elif in_type[:2] == 'pl':
+                        in_items2 = cmds.listConnections(in_items[0],d=False, s=True )
+                        if in_items2 != None:
+                                color_map_tex = in_tex
+                        else:
+                            content_tex = in_tex
+                else:
+                    content_tex = in_tex
+
+            if out_mat == None:
+                break
+
+            iscon = cmds.isConnected(fileNode+'.outColor',out_mat[0] + '.color')
+            if iscon:
+                cmds.disconnectAttr(fileNode+'.outColor',out_mat[0] + '.color')
+
+
+            cmds.connectAttr( content_tex + '.outColor', out_mat[0] + '.color' )
+            if color_map_tex != None:
+                #cmds.delete( color_map_tex )
+                del_list.append(color_map_tex)
+            #cmds.delete( fileNode )
+            del_list.append(fileNode) 
+
+
+
+    del_list = {}.fromkeys(del_list).keys()
+    for tex in del_list:
+        cmds.delete( tex )
 
 
     split_group = f.split("/")
