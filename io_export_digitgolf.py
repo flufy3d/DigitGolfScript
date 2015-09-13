@@ -17,6 +17,7 @@ import os.path
 import io
 import json
 
+flip_mode = 'Y'
 
 class UL_material_elements_actions(bpy.types.Operator):
     bl_idname = "digitgolf.list_action"
@@ -144,12 +145,16 @@ def render_one(scn,name):
     blur_node.filter_type='FAST_GAUSS'
     blur_node.size_x = blur_value
     blur_node.size_y = blur_value
+    flip_node = tree.nodes.new('CompositorNodeFlip')
+    flip_node.location = 600,0
+    flip_node.axis = flip_mode
     composite_node = tree.nodes.new('CompositorNodeComposite')
-    composite_node.location =600,0
+    composite_node.location =900,0
 
     links = tree.links
     link_l_b = links.new(layer_node.outputs[0], blur_node.inputs[0])
-    link_b_c = links.new(blur_node.outputs[0], composite_node.inputs[0])
+    link_b_f = links.new(blur_node.outputs[0], flip_node.inputs[0])
+    link_f_c = links.new(flip_node.outputs[0], composite_node.inputs[0])
 
 
     scn.render.filepath = '//output/'+name
@@ -207,13 +212,22 @@ class Op_render_heightmap(bpy.types.Operator):
         norm_node.location = 300,0
         invert_node = tree.nodes.new('CompositorNodeInvert')
         invert_node.location =600,0
+        maprange_node = tree.nodes.new('CompositorNodeMapRange')
+        maprange_node.location = 900,0
+        maprange_node.inputs[3].default_value = 0.1
+        maprange_node.inputs[4].default_value = 0.9
+        flip_node = tree.nodes.new('CompositorNodeFlip')
+        flip_node.location = 1200,0
+        flip_node.axis = flip_mode
         composite_node = tree.nodes.new('CompositorNodeComposite')
-        composite_node.location =900,0
+        composite_node.location =1500,0
 
         links = tree.links
         links.new(layer_node.outputs[2], norm_node.inputs[0])
         links.new(norm_node.outputs[0], invert_node.inputs[1])
-        links.new(invert_node.outputs[0], composite_node.inputs[0])
+        links.new(invert_node.outputs[0],maprange_node.inputs[0])
+        links.new(maprange_node.outputs[0],flip_node.inputs[0])
+        links.new(flip_node.outputs[0], composite_node.inputs[0])
 
 
         scn.render.filepath = '//output/'+'heightmap'
@@ -485,9 +499,10 @@ def register():
 
     bpy.types.Scene.cur_material_elements = bpy.props.CollectionProperty(type=material_elements)
     bpy.types.Scene.cur_material_elements_index = bpy.props.IntProperty()
-    
-    bpy.context.scene.cur_material_elements.clear()
-    bpy.context.scene.mat_group_items_cur_blur_value = 0
+
+    if hasattr( bpy.context , 'scene') :
+        bpy.context.scene.cur_material_elements.clear()
+        bpy.context.scene.mat_group_items_cur_blur_value = 0
 
 
     pass
